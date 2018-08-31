@@ -1,6 +1,51 @@
 Tool for manipulating the Phidget from console
 ==============================================
 
+
+Building the library
+--------------------
+
+In order to build this tool, you'll need libphidget22 library installed.
+
+1. Download its source code from [2] and unpack
+2. Install dependencies:
+
+    $ sudo aptitude install libusb-1.0-0-dev libusb-1.0-0 checkinstall
+
+3. Build library, create deb-package and install it:
+
+    $ ./configure --prefix=/usr
+    $ make -j4
+    $ sudo checkinstall --install=no
+    $ sudo chown -R $USER:$USER *
+    $ sudo dpkg -i *.deb
+
+
+
+Udev rules
+----------
+
+If you want to run the tool without sudo, udev rules must be applied.
+
+Copy udev rules from libphidget22 library:
+
+    $ sudo cp plat/linux/udev/99-libphidget22.rules /etc/udev/rules.d
+
+Reload rules:
+
+    $ sudo udevadm control --reload-rules
+    $ sudo udevadm trigger
+
+Now re-connect your phidget (disconnect and connect USB cable).
+
+
+
+Official documentation
+----------------------
+
+This tool is for phidget device described at [1]. Linux documentation can be
+found at [2]. API is described at [3] (C, 1014_2-PhidgetInterfaceKit 0/0/4).
+
 [1] https://www.phidgets.com/?tier=3&catid=46&pcid=39&prodid=1020
 [2] https://www.phidgets.com/docs/OS_-_Linux
-
+[3] https://www.phidgets.com/?view=api
