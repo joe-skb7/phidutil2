@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #define EXIT_SIGNAL	128	/* terminated by signal */
@@ -38,38 +39,49 @@ static void print_usage(const char *app)
 static bool parse_params(int argc, char *argv[], struct params *params)
 {
 	int c;
-	int param;
+	int res;
 
+	/* Default values */
+	memset(params, 0, sizeof(*params));
+	params->serial = PHIDGET_SERIALNUMBER_ANY;
+	params->channel = PHIDGET_CHANNEL_ANY;
+
+	/* Parse and validate optional parameters */
 	while ((c = getopt(argc, argv, "s:p:v")) != -1) {
 		switch (c) {
 		case 'v':
-			printf("option -%c with argument '%s'\n", c, optarg);
+			params->verbose = true;
 			break;
 		case 's':
-			printf("option -%c with argument '%s'\n", c, optarg);
+			res = str2int(&params->serial, optarg, 10);
+			if (res) {
+				fprintf(stderr, "Error: Wrong serial\n");
+				return false;
+			}
 			break;
 		case 'p':
-			printf("option -%c with argument '%s'\n", c, optarg);
+			res = str2int(&params->channel, optarg, 10);
+			if (res || params->channel > MAX_PORT) {
+				fprintf(stderr, "Error: Wrong port\n");
+				return false;
+			}
 			break;
-		case ':':
-			printf("option -%c with : (default) argument value\n", optopt);
-			break;
-		case '?':
-			printf("option -%c with ? argument value\n", optopt);
-			break;
-		default: /* '?' */
-			fprintf(stderr, "invalid option: -%c\n", optopt);
+		default:
+			fprintf(stderr, "Error: Invalid option: -%c\n", optopt);
 			return false;
 		}
 	}
 
-#if 0
+	/* Parse and validate "state" parameter (mandatory) */
 	if (argv[optind] == NULL) {
-		fprintf(stderr, "Error: \n");
+		fprintf(stderr, "Error: Missing state\n");
 		return false;
 	}
-#endif
-	params->state = argv[optind];
+	res = str2int(&params->state, argv[optind], 10);
+	if (res || (params->state != 0 && params->state != 1)) {
+		fprintf(stderr, "Error: Wrong state\n");
+		return false;
+	}
 
 	return true;
 }
