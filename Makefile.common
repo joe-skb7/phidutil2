@@ -1,0 +1,26 @@
+CC = $(CROSS_COMPILE)gcc
+LD = $(CROSS_COMPILE)gcc
+
+CPPFLAGS += -Iinclude -MD
+CFLAGS += -Wall -Wundef -Wpointer-arith -Wcast-qual
+CFLAGS += -Wextra -Wshadow -Wimplicit-function-declaration
+CFLAGS += -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
+CFLAGS += -std=gnu89 -fstack-protector-strong
+CFLAGS += -O2
+
+# Discard unused symbols (to reduce library size)
+CFLAGS		+= -ffunction-sections -fdata-sections
+LDFLAGS		+= -Wl,--gc-sections
+ifeq ($(V),99)
+LDFLAGS		+= -Wl,--print-gc-sections
+endif
+
+LDFLAGS		+= -Wl,--as-needed -Wl,--no-undefined
+
+# Be silent per default, but 'make V=1' will show all compiler calls
+ifneq ($(V),1)
+Q := @
+endif
+
+INSTALL		:= install -m 0755
+INSTALL_DATA	:= install -m 0644
