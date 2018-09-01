@@ -21,6 +21,3 @@ LDFLAGS		+= -Wl,--as-needed -Wl,--no-undefined
 ifneq ($(V),1)
 Q := @
 endif
-
-INSTALL		:= install -m 0755
-INSTALL_DATA	:= install -m 0644

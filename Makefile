@@ -31,10 +31,14 @@ install: $(APP)
 	$(Q)install -d $(DESTDIR)$(PREFIX)/bin
 	$(Q)install -m 0755 $(APP) $(DESTDIR)$(PREFIX)/bin
 
+debian:
+	@printf "  DEBIAN\n"
+	$(Q)dpkg-buildpackage -us -uc -tc
+
 %.o: %.c
 	@printf "  CC      $(*).c\n"
 	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).c
 
-.PHONY: default clean distclean install
+.PHONY: default clean distclean install debian
 
 -include $(OBJS:.o=.d)
