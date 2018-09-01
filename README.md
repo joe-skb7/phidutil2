@@ -5,6 +5,11 @@
 This tool for phidget device described at [1]. Linux documentation can be
 found at [2]. API is described at [3] (C, 1014_2-PhidgetInterfaceKit 0/0/4).
 
+## Prebuilt packages
+
+You can find prebuilt deb packages for libphidget22 and phidutil2 in
+`prebuilt/` directory (for amd64 architecture).
+
 ## Building the library
 
 In order to build this tool, you'll need libphidget22 library installed.
