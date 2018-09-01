@@ -7,20 +7,29 @@ Building the library
 
 In order to build this tool, you'll need libphidget22 library installed.
 
-1. Download its source code from [2] and unpack
-2. Install dependencies:
+1. Install dependencies:
 
     $ sudo aptitude install libusb-1.0-0-dev libusb-1.0-0 checkinstall
 
-3. Build library, create deb-package and install it:
+2. Download library source code. build and install:
 
+    $ wget https://www.phidgets.com/downloads/phidget22/libraries/linux/libphidget22.tar.gz
+    $ tar xzvf libphidget22.tar.gz
+    $ rm libphidget22.tar.gz
+    $ cd libphidget22-1.0.0.20180827/
     $ ./configure --prefix=/usr
     $ make -j4
     $ sudo checkinstall --install=no
     $ sudo chown -R $USER:$USER *
     $ sudo dpkg -i *.deb
 
+  Also copy udev rules and restart udev:
 
+    $ sudo cp plat/linux/udev/99-libphidget22.rules /etc/udev/rules.d/
+    $ sudo udevadm control --reload-rules
+    $ sudo udevadm trigger
+
+  Now reconnect your phidget.
 
 Udev rules
 ----------
