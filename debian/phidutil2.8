@@ -1,0 +1,72 @@
+.TH PHIDUTIL2 8 "September 2018"
+.SH NAME
+phidutil2 \- control relay phidget device
+
+.SH SYNOPSIS
+.B phidutil2
+.RB [ -v ]
+.RB [ "-s serialno" ]
+.RB [ "-p portno" ]
+.I state
+
+.SH DESCRIPTION
+phidutil2 tool allows one to manipulate the state of relays on Phidget device.
+.PP
+Specify the \fIstate\fR of relay: either 0 (OFF) or 1 (ON).
+.PP
+You can also operate multiple devices by specifying serial number \fIserialno\fR
+via \fB-s\fR option.
+.PP
+If you want to avoid using sudo with this tool, corresponding udev rules from
+libphidget22 should be copied to \fB/etc/udev/rules.d\fR.
+
+.SH OPTIONS
+.TP
+.B "\-v"
+Enable verbose output (libphidget22 logging and additional tool traces).
+.TP
+.B -s serialno
+Specify serial number of specific phidget device. This may be useful to work
+with several phidget devices. If you have only one phidget connected, you can
+omit this option.
+.TP
+.B -p portno
+Specify relay number to work  with. If this option is omitted, tool will work
+with relay #0.
+
+.SH EXAMPLES
+.PP
+Enable relay #0 on phidget:
+.nf
+.RS
+$ phidutil2 1
+.RE
+.fi
+.PP
+Disable relay #3 on phidget with serial number 123456:
+.nf
+.RS
+$ phidutil2 -s 123456 -p 3 0
+.RE
+.fi
+.PP
+Test all relays in infinite loop:
+.nf
+.RS
+$ while true; do
+  phidutil2 -p 0 1
+  phidutil2 -p 1 1
+  phidutil2 -p 2 1
+  phidutil2 -p 3 1
+  sleep 0.5
+  phidutil2 -p 0 0
+  phidutil2 -p 1 0
+  phidutil2 -p 2 0
+  phidutil2 -p 3 0
+  sleep 0.5
+  done
+.RE
+.fi
+
+.SH AUTHOR
+Sam Protsenko
