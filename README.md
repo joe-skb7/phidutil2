@@ -29,7 +29,10 @@ In order to build this tool, you'll need libphidget22 library installed.
     $ sudo dpkg -i *.deb
 ```
 
-  Also copy udev rules and restart udev:
+## udev rules
+
+In order to be able to run phidutil2 tool without sude, copy udev rules
+from libphidget22 source code directory and restart udev:
 
 ```
     $ sudo cp plat/linux/udev/99-libphidget22.rules /etc/udev/rules.d/
@@ -38,6 +41,13 @@ In order to build this tool, you'll need libphidget22 library installed.
 ```
 
   Now reconnect your phidget (disconnect and connect USB cable).
+
+## Building the tool
+
+Build and install Debian package:
+
+    $ make debian
+    $ sudo dpkg -i ../*.deb
 
 ## Authors
 
