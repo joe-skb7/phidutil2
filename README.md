@@ -2,7 +2,7 @@
 
 ## Overview
 
-This tool is for phidget device described at [1]. Linux documentation can be
+This tool for phidget device described at [1]. Linux documentation can be
 found at [2]. API is described at [3] (C, 1014_2-PhidgetInterfaceKit 0/0/4).
 
 ## Building the library
@@ -51,7 +51,7 @@ Build and install Debian package:
 
 ## Usage
 
-Run `phidutil2 --help` to see the usage details:
+Run `phidutil2 --help` or `man phidutil2` to see the usage details:
 
 ```
 Usage: phidutil2 [-v] [-s serialno] [-p portno] state
