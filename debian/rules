@@ -5,5 +5,6 @@ export PREFIX=/usr
 %:
 	dh $@
 
+# Workaround for libphidget22 installed not from Debian package
 override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
