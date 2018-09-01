@@ -4,6 +4,7 @@ APP = phidutil2
 PREFIX ?= /usr/local
 SOURCES =			\
 	src/main.c		\
+	src/phidget.c		\
 	src/tools.c
 OBJS = $(SOURCES:%.c=%.o)
 

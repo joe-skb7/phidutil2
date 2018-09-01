@@ -1,6 +1,4 @@
-#include <stddef.h>
-#include <phidget22.h>
-
+#include <phidget.h>
 #include <tools.h>
 
 #include <signal.h>
@@ -20,7 +18,6 @@ struct params {
 	int state;		/* relay state: 0 or 1 */
 };
 
-static PhidgetDigitalOutputHandle channel;
 
 static void print_usage(const char *app)
 {
@@ -86,75 +83,31 @@ static bool parse_params(int argc, char *argv[], struct params *params)
 	return true;
 }
 
-static void cleanup(void)
-{
-	PhidgetReturnCode res;
-
-	if (channel == NULL)
-		return;
-
-	res = Phidget_close((PhidgetHandle)channel);
-	if (res != EPHIDGET_OK)
-		fprintf(stderr, "Warning: Can't close phidget: %#x\n", res);
-
-	res = PhidgetDigitalOutput_delete(&channel);
-	if (res != EPHIDGET_OK) {
-		fprintf(stderr, "Warning: Can't delete phidget channel: %#x\n",
-			res);
-	}
-}
-
 static void sig_handler(int signum)
 {
 	if (signum == SIGINT) {
-		cleanup();
+		phidget_exit();
 		exit(EXIT_SIGNAL + signum);
 	}
 }
 
-static void set_params(void)
-{
-	/* TODO */
-
-	Phidget_setDeviceSerialNumber((PhidgetHandle)channel,
-				      PHIDGET_SERIALNUMBER_ANY);
-	Phidget_setHubPort((PhidgetHandle)channel, PHIDGET_HUBPORT_ANY);
-	Phidget_setChannel((PhidgetHandle)channel, 0);
-}
-
 int main(int argc, char *argv[])
 {
-	PhidgetReturnCode res;
 	struct params params;
-	int ret = EXIT_SUCCESS;
+	bool ret = EXIT_SUCCESS;
 
 	if (!parse_params(argc, argv, &params)) {
 		print_usage(argv[0]);
 		return EXIT_FAILURE;
 	}
 
-	/* Enable logging to stdout */
-//	if (verbose)
-//		PhidgetLog_enable(PHIDGET_LOG_INFO, NULL);
-
-	res = PhidgetDigitalOutput_create(&channel);
-	if (res != EPHIDGET_OK) {
-		fprintf(stderr, "Error: Can't create phidget channel: %#x\n",
-				res);
-		return EXIT_FAILURE;
-	}
-
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
 		fprintf(stderr, "Warning: Can't catch SIGINT\n");
 
-	set_params();
+	if (params.verbose)
+		phidget_enable_logging(true);
 
-	res = Phidget_openWaitForAttachment((PhidgetHandle)channel,
-					    PHIDGET_TIMEOUT_DEFAULT);
-	if (res != EPHIDGET_OK) {
-		fprintf(stderr, "Error: Failed to open channel: %#x\n", res);
-		goto err;
-	}
+	phidget_init(params.verbose);
 
 	/* TODO: do something meaningful here */
 	while (1) {
@@ -174,8 +127,4 @@ int main(int argc, char *argv[])
 
 		msleep(500);
 	}
-
-err:
-	cleanup();
-	return ret;
 }
