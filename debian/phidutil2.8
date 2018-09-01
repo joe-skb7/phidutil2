@@ -23,7 +23,7 @@ libphidget22 should be copied to \fB/etc/udev/rules.d\fR.
 .SH OPTIONS
 .TP
 .B "\-v"
-Enable verbose output (libphidget22 logging and additional tool traces).
+Enable verbose output (libphidget22 logging and additional traces).
 .TP
 .B -s serialno
 Specify serial number of specific phidget device. This may be useful to work
@@ -54,16 +54,16 @@ Test all relays in infinite loop:
 .nf
 .RS
 $ while true; do
-  phidutil2 -p 0 1
-  phidutil2 -p 1 1
-  phidutil2 -p 2 1
-  phidutil2 -p 3 1
-  sleep 0.5
-  phidutil2 -p 0 0
-  phidutil2 -p 1 0
-  phidutil2 -p 2 0
-  phidutil2 -p 3 0
-  sleep 0.5
+      phidutil2 -p 0 1
+      phidutil2 -p 1 1
+      phidutil2 -p 2 1
+      phidutil2 -p 3 1
+      sleep 0.5
+      phidutil2 -p 0 0
+      phidutil2 -p 1 0
+      phidutil2 -p 2 0
+      phidutil2 -p 3 0
+      sleep 0.5
   done
 .RE
 .fi
