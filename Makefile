@@ -28,6 +28,7 @@ distclean: clean
 
 install: $(APP)
 	@printf "  INSTALL\n"
+	$(Q)install -d $(DESTDIR)$(PREFIX)/bin
 	$(Q)install -m 0755 $(APP) $(DESTDIR)$(PREFIX)/bin
 
 %.o: %.c
