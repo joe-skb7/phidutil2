@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 #include <phidget.h>
 #include <tools.h>
 
@@ -14,22 +15,20 @@
 struct params {
 	bool verbose;		/* print libphidget log */
 	int32_t serial;		/* phidget serial number */
-	int channel;		/* channel number (0..MAX_PORT) */
+	int port;		/* relay port number (0..MAX_PORT) */
 	int state;		/* relay state: 0 or 1 */
 };
 
+static struct phidget *phidget;
 
 static void print_usage(const char *app)
 {
 	printf("Usage: %s [-v] [-s serialno] [-p portno] state\n\n"
 		"Options:\n"
-		"\t-v\n"
-		"\t\tVerbose output (enable libphidget logging)\n"
-		"\t-s serialno\n"
-		"\t\tPhidget serial number\n"
-		"\t-p portno\n"
-		"\t\tPort (relay) number (0-3)\n"
-		"\tstate: 0 (OFF) or 1 (ON)\n",
+		"\t-v\t\tVerbose output\n"
+		"\t-s serialno\tPhidget serial number\n"
+		"\t-p portno\tRelay port number (0-3)\n"
+		"\tstate\t\t0 (OFF) or 1 (ON)\n",
 		app);
 }
 
@@ -38,10 +37,16 @@ static bool parse_params(int argc, char *argv[], struct params *params)
 	int c;
 	int res;
 
+	/* Handle "--help" case */
+	if (argc == 2 && !strcmp(argv[1], "--help")) {
+		print_usage(argv[0]);
+		exit(EXIT_SUCCESS);
+	}
+
 	/* Default values */
 	memset(params, 0, sizeof(*params));
-	params->serial = PHIDGET_SERIALNUMBER_ANY;
-	params->channel = PHIDGET_CHANNEL_ANY;
+	params->serial = -1;
+	params->port = -1;
 
 	/* Parse and validate optional parameters */
 	while ((c = getopt(argc, argv, "s:p:v")) != -1) {
@@ -57,14 +62,14 @@ static bool parse_params(int argc, char *argv[], struct params *params)
 			}
 			break;
 		case 'p':
-			res = str2int(&params->channel, optarg, 10);
-			if (res || params->channel > MAX_PORT) {
+			res = str2int(&params->port, optarg, 10);
+			if (res || params->port > MAX_PORT) {
 				fprintf(stderr, "Error: Wrong port\n");
 				return false;
 			}
 			break;
 		default:
-			fprintf(stderr, "Error: Invalid option: -%c\n", optopt);
+			/* Invalid option optopt */
 			return false;
 		}
 	}
@@ -83,10 +88,23 @@ static bool parse_params(int argc, char *argv[], struct params *params)
 	return true;
 }
 
+static void print_params(const struct params *params)
+{
+	printf("Parameters:\n"
+		"verbose: %s\n"
+		"serial: %d\n"
+		"port: %d\n"
+		"state: %d\n\n",
+		params->verbose ? "true" : "false",
+		params->serial,
+		params->port,
+		params->state);
+}
+
 static void sig_handler(int signum)
 {
 	if (signum == SIGINT) {
-		phidget_exit();
+		phidget_destroy(phidget);
 		exit(EXIT_SIGNAL + signum);
 	}
 }
@@ -94,37 +112,28 @@ static void sig_handler(int signum)
 int main(int argc, char *argv[])
 {
 	struct params params;
-	bool ret = EXIT_SUCCESS;
 
 	if (!parse_params(argc, argv, &params)) {
 		print_usage(argv[0]);
 		return EXIT_FAILURE;
 	}
 
+	if (params.verbose) {
+		print_params(&params);
+		phidget_enable_logging();
+	}
+
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
 		fprintf(stderr, "Warning: Can't catch SIGINT\n");
 
-	if (params.verbose)
-		phidget_enable_logging(true);
+	phidget = phidget_create(params.serial, params.port);
+	if (phidget == NULL)
+		return EXIT_FAILURE;
 
-	phidget_init(params.verbose);
-
-	/* TODO: do something meaningful here */
-	while (1) {
-		int state;
-
-		res = PhidgetDigitalOutput_getState(channel, &state);
-		if (res != EPHIDGET_OK) {
-			fprintf(stderr, "Error: Can't get state: %#x\n", res);
-			goto err;
-		}
-
-		res = PhidgetDigitalOutput_setState(channel, !state);
-		if (res != EPHIDGET_OK) {
-			fprintf(stderr, "Error: Can't set state: %#x\n", res);
-			goto err;
-		}
-
-		msleep(500);
-	}
+	//phidget_get_state(phidget, &params.state); /* XXX */
+	if (!phidget_set_state(phidget, params.state))
+		return EXIT_FAILURE;
+	//msleep(1500);
+	//phidget_destroy(phidget);
+	return EXIT_SUCCESS;
 }

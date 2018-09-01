@@ -1,19 +1,24 @@
+// SPDX-License-Identifier: GPL-2.0
 #include <phidget.h>
 
 #include <stddef.h>
 #include <phidget22.h>
 
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 struct phidget {
 	PhidgetDigitalOutputHandle channel;	/* libphidget object */
 	int32_t serial;				/* board serial number */
-	int port;				/* relay number */
+	int channel_no;				/* relay number */
 };
 
 /**
- * Phidget object constructor.
+ * Constructs the phidget object for specified relay number and serial number.
  *
  * @param serial Phidget serial number
- * @param channel_no Relay number
+ * @param channel_no Relay port number
  * @return Constructed object or NULL on error
  */
 struct phidget *phidget_create(int32_t serial, int channel_no)
@@ -21,22 +26,29 @@ struct phidget *phidget_create(int32_t serial, int channel_no)
 	struct phidget *obj;
 	PhidgetReturnCode res;
 
+	/* Check for default values */
+	if (serial == -1)
+		serial = PHIDGET_SERIALNUMBER_ANY;
+	if (channel_no == -1)
+		channel_no = PHIDGET_CHANNEL_ANY;
+
 	obj = malloc(sizeof(*obj));
 	if (obj == NULL)
 		return NULL;
 
 	res = PhidgetDigitalOutput_create(&obj->channel);
 	if (res != EPHIDGET_OK) {
-		fprintf(stderr, "Error: Can't create phidget channel: "
-				"err = %#x\n", res);
+		fprintf(stderr,
+			"Error: Can't create phidget channel: err = %#x\n",
+			res);
 		goto err1;
 	}
 
 	res = Phidget_setDeviceSerialNumber((PhidgetHandle)obj->channel,
 					    serial);
 	if (res) {
-		fprintf(stderr, "Error: Unable to set serial number: "
-				"err = %#x\n", res);
+		fprintf(stderr,
+			"Error: Unable to set serial number: err = %#x\n", res);
 		goto err2;
 	}
 
@@ -49,11 +61,18 @@ struct phidget *phidget_create(int32_t serial, int channel_no)
 
 	res = Phidget_openWaitForAttachment((PhidgetHandle)obj->channel,
 					    PHIDGET_TIMEOUT_DEFAULT);
-	if (res != EPHIDGET_OK) {
+	if (res == EPHIDGET_TIMEOUT) {
+		fprintf(stderr,
+			"Error: Device is not connected or sudo is needed\n");
+		goto err3;
+	} else if (res != EPHIDGET_OK) {
 		fprintf(stderr, "Error: Failed to open channel: err = %#x\n",
 				res);
 		goto err3;
 	}
+
+	obj->serial = serial;
+	obj->channel_no = channel_no;
 
 	return obj;
 
@@ -79,6 +98,51 @@ void phidget_destroy(struct phidget *obj)
 	Phidget_close((PhidgetHandle)obj->channel);
 	PhidgetDigitalOutput_delete(&obj->channel);
 	free(obj);
+}
+
+/**
+ * Get relay state (on or off).
+ *
+ * @param obj Phidget object
+ * @param[out] state Variable to store relay state to
+ * @return true on success or false on fail
+ */
+bool phidget_get_state(const struct phidget *obj, int *state)
+{
+	PhidgetReturnCode res;
+
+	assert(obj != NULL);
+	assert(state != NULL);
+
+	res = PhidgetDigitalOutput_getState(obj->channel, state);
+	if (res != EPHIDGET_OK) {
+		fprintf(stderr, "Error: Can't get state: %#x\n", res);
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Set relay to state (on or off).
+ *
+ * @param obj Phidget object
+ * @param state State to set relay to
+ * @return true on success or false on fail
+ */
+bool phidget_set_state(const struct phidget *obj, int state)
+{
+	PhidgetReturnCode res;
+
+	assert(obj != NULL);
+
+	res = PhidgetDigitalOutput_setState(obj->channel, state);
+	if (res != EPHIDGET_OK) {
+		fprintf(stderr, "Error: Can't set state: %#x\n", res);
+		return false;
+	}
+
+	return true;
 }
 
 /**
