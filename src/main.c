@@ -100,6 +100,7 @@ static void sig_handler(int signum)
 int main(int argc, char *argv[])
 {
 	struct params params;
+	int ret = EXIT_SUCCESS;
 
 	if (!parse_params(argc, argv, &params)) {
 		print_usage(argv[0]);
@@ -117,8 +118,8 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	if (!phidget_set_state(phidget, params.state))
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
 
 	phidget_destroy(phidget);
-	return EXIT_SUCCESS;
+	return ret;
 }
