@@ -49,6 +49,31 @@ Build and install Debian package:
     $ make debian
     $ sudo dpkg -i ../*.deb
 
+## Usage
+
+Run `phidutil2 --help` to see the usage details:
+
+```
+Usage: phidutil2 [-v] [-s serialno] [-p portno] state
+
+Options:
+	-v		Verbose output
+	-s serialno	Phidget serial number
+	-p portno	Relay port number (0-3)
+	state		0 (OFF) or 1 (ON)
+
+```
+
+## Testing the tool
+
+Connect your phidget to your PC and run next command to test it:
+
+```
+    $ while true; do phidutil2 0; sleep 0.5; phidutil2 1; sleep 0.5; done
+```
+
+You should hear audible relay #0 clicks. Press `Ctrl-C` to interrupt it.
+
 ## Authors
 
 **Sam Protsenko**
