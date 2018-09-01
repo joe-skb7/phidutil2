@@ -95,8 +95,12 @@ void phidget_destroy(struct phidget *obj)
 	assert(obj != NULL);
 	assert(obj->channel != NULL);
 
-	//Phidget_close((PhidgetHandle)obj->channel);
-	//PhidgetDigitalOutput_delete(&obj->channel);
+	/* Do not call these as they will always release relay to OFF state */
+#if 0
+	Phidget_close((PhidgetHandle)obj->channel);
+	PhidgetDigitalOutput_delete(&obj->channel);
+#endif
+
 	free(obj);
 }
 

@@ -88,23 +88,11 @@ static bool parse_params(int argc, char *argv[], struct params *params)
 	return true;
 }
 
-static void print_params(const struct params *params)
-{
-	printf("Parameters:\n"
-		"verbose: %s\n"
-		"serial: %d\n"
-		"port: %d\n"
-		"state: %d\n\n",
-		params->verbose ? "true" : "false",
-		params->serial,
-		params->port,
-		params->state);
-}
-
 static void sig_handler(int signum)
 {
 	if (signum == SIGINT) {
-		phidget_destroy(phidget);
+		if (phidget)
+			phidget_destroy(phidget);
 		exit(EXIT_SIGNAL + signum);
 	}
 }
@@ -118,13 +106,11 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (params.verbose) {
-		print_params(&params);
-		phidget_enable_logging();
-	}
-
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
 		fprintf(stderr, "Warning: Can't catch SIGINT\n");
+
+	if (params.verbose)
+		phidget_enable_logging();
 
 	phidget = phidget_create(params.serial, params.port);
 	if (phidget == NULL)
