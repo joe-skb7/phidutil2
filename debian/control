@@ -1,0 +1,16 @@
+Source: phidutil2
+Section: utils
+Priority: optional
+Build-Depends: debhelper (>= 11), libphidget22, libusb-1.0-0-dev, pkg-config
+Maintainer: Sam Protsenko <joe.skb7@gmail.com>
+Standards-Version: 4.1.4
+Homepage: https://github.com/joe-skb7/phidutil2
+
+Package: phidutil2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libphidget22
+Description: tool for manipulating the relay phidget device
+ This package contains the tool for control the phidget relay device.
+ .
+ For details on phidget device see next link:
+ https://www.phidgets.com/?tier=3&catid=46&pcid=39&prodid=1020
