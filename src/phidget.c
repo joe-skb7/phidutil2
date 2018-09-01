@@ -95,8 +95,8 @@ void phidget_destroy(struct phidget *obj)
 	assert(obj != NULL);
 	assert(obj->channel != NULL);
 
-	Phidget_close((PhidgetHandle)obj->channel);
-	PhidgetDigitalOutput_delete(&obj->channel);
+	//Phidget_close((PhidgetHandle)obj->channel);
+	//PhidgetDigitalOutput_delete(&obj->channel);
 	free(obj);
 }
 

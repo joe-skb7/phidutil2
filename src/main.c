@@ -130,10 +130,9 @@ int main(int argc, char *argv[])
 	if (phidget == NULL)
 		return EXIT_FAILURE;
 
-	//phidget_get_state(phidget, &params.state); /* XXX */
 	if (!phidget_set_state(phidget, params.state))
 		return EXIT_FAILURE;
-	//msleep(1500);
-	//phidget_destroy(phidget);
+
+	phidget_destroy(phidget);
 	return EXIT_SUCCESS;
 }
