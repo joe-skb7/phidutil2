@@ -51,8 +51,10 @@ from libphidget22 source code directory and restart udev:
 
 Build and install Debian package:
 
+```
     $ make debian
     $ sudo dpkg -i ../*.deb
+```
 
 ## Usage
 
