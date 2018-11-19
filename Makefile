@@ -24,7 +24,7 @@ clean:
 
 distclean: clean
 	@printf "  DISTCLEAN\n"
-	$(Q)$(RM) -f cscope.* tags
+	$(Q)rm -f cscope.* tags
 
 install: $(APP)
 	@printf "  INSTALL\n"
